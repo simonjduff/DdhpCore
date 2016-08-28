@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+﻿using DdhpCore.Micros.Runner;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -16,7 +16,7 @@ namespace DdhpCore.FrontEnd
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IApplicationLifetime applicationLifetime)
         {
             loggerFactory.AddConsole();
 
@@ -25,7 +25,9 @@ namespace DdhpCore.FrontEnd
                 app.UseDeveloperExceptionPage();
             }
 
-            Task.Run(() => { }); // In-process worker stuff goes here
+            var worker = new MicrosRunner();
+            applicationLifetime.ApplicationStopping.Register(worker.StopApplication);
+            worker.Run();
 
             app.Run(async (context) =>
             {

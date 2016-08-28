@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 
 namespace DdhpCore.Micros.Runner
 {
-    public class MicrosRuner
+    public class MicrosRunner
     {
         private readonly CancellationTokenSource _cancellationTokenSource;
 
-        public MicrosRuner()
+        public MicrosRunner()
         {
             _cancellationTokenSource = new CancellationTokenSource();
         }
