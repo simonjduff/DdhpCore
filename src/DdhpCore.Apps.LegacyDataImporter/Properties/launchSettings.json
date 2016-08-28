@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "DdhpCore.Apps.LegacyDataImporter": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "IsDevelopment": "true"
+      }
+    }
+  }
+}
