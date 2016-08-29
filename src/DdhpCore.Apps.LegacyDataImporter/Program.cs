@@ -52,10 +52,16 @@ namespace LegacyDataImporter
 
             Configuration = configuration.Build();
 
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(StorageConnectionString);
-            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
+            var program = new Program();
+            program.Run();
+        }
 
-            CloudTable table = tableClient.GetTableReference("clubs");
+        private void Run()
+        {
+            var storageAccount = CloudStorageAccount.Parse(StorageConnectionString);
+            var tableClient = storageAccount.CreateCloudTableClient();
+
+            var table = tableClient.GetTableReference("clubs");
             try
             {
                 table.CreateIfNotExistsAsync().Wait();
@@ -70,7 +76,7 @@ namespace LegacyDataImporter
             ImportTeams(dbContext, table);
         }
 
-        private static void ImportTeams(DdhpContext dbContext, CloudTable table)
+        private void ImportTeams(DdhpContext dbContext, CloudTable table)
         {
             var teams = dbContext.Teams;
 
@@ -82,7 +88,7 @@ namespace LegacyDataImporter
             table.ExecuteBatchAsync(batchOperation).Wait();
         }
 
-        private static Club MapTeamToClub(Team team)
+        private Club MapTeamToClub(Team team)
         {
             return new Club
             {
