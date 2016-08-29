@@ -30,5 +30,9 @@
   "tools": {
     "Microsoft.Extensions.SecretManager.Tools": "1.0.0-preview2-final"
   },
-  "scripts": {"postcompile": }
+  "scripts": {
+    "postcompile": [
+      "xcopy %project:Directory%\\project.json bin\\Debug\\netcoreapp1.0"
+    ]
+  }
 }
