@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
+using LegacyDataImporter.LegacyModels;
+using LegacyDataImporter.Models;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
@@ -67,9 +67,30 @@ namespace LegacyDataImporter
 
             var dbContext = new DdhpContext(DatabaseConnectionString);
 
+            ImportTeams(dbContext, table);
+        }
+
+        private static void ImportTeams(DdhpContext dbContext, CloudTable table)
+        {
             var teams = dbContext.Teams;
 
-            Console.WriteLine(teams.Count());
+            var clubs = teams.Select(team => MapTeamToClub(team));
+
+            TableBatchOperation batchOperation = new TableBatchOperation();
+            clubs.ToList().ForEach(club => batchOperation.InsertOrReplace(club));
+
+            table.ExecuteBatchAsync(batchOperation).Wait();
+        }
+
+        private static Club MapTeamToClub(Team team)
+        {
+            return new Club
+            {
+                LegacyId = team.Id,
+                CoachName = team.CoachName,
+                ClubName = team.TeamName,
+                Email = team.Email
+            };
         }
     }
 }

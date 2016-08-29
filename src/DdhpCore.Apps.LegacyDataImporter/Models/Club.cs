@@ -1,8 +1,25 @@
-﻿namespace LegacyDataImporter.Models
+﻿using Microsoft.WindowsAzure.Storage.Table;
+
+namespace LegacyDataImporter.Models
 {
-    public class Club
+    public class Club : TableEntity
     {
+        public Club()
+        {
+            PartitionKey = "ALL_CLUBS";
+        }
         public int LegacyId { get; set; }
-         
+        public string CoachName { get; set; }
+
+        private string _clubName;
+        public string ClubName {
+            get { return _clubName; }
+            set
+            {
+                _clubName = value;
+                RowKey = value;
+            }
+        }
+        public string Email { get; set; }
     }
 }
