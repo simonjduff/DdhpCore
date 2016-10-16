@@ -14,6 +14,8 @@ namespace DdhpCore.FrontEnd
     {
         public Startup(IHostingEnvironment env)
         {
+            UseLocalDynamoDb = env.IsEnvironment("development");
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -22,6 +24,8 @@ namespace DdhpCore.FrontEnd
             Configuration = builder.Build();
         }
 
+        private bool UseLocalDynamoDb{get;set;}
+
         public IConfigurationRoot Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -29,9 +33,12 @@ namespace DdhpCore.FrontEnd
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
-            services.AddAWSService<IAmazonDynamoDB>();
 
+            if (!UseLocalDynamoDb)
+            {
+                services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
+                services.AddAWSService<IAmazonDynamoDB>();
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
