@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
@@ -8,10 +12,26 @@ namespace DdhpCore.FrontEnd.Controllers.Api
     [Route("api/[controller]")]
     public class ClubsController : Controller
     {
+        private readonly IAmazonDynamoDB _dynamoDb;
+
+        public ClubsController(IAmazonDynamoDB dynamoDb)
+        {
+            _dynamoDb = dynamoDb;
+        }
+
         // GET: api/values
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<IEnumerable<string>> Get()
         {
+            try
+            {
+                var table = await _dynamoDb.DescribeTableAsync("test");
+            }
+            catch (ResourceNotFoundException)
+            {
+                return new string[] {"Result: ", "Table not found"};
+            }
+
             return new string[] { "value1", "value2" };
         }
 

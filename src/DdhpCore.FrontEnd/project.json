@@ -16,7 +16,8 @@
     "Microsoft.NETCore.App": {
       "version": "1.0.1",
       "type": "platform"
-    }
+    },
+    "AWSSDK.DynamoDBv2": "3.3.0.1"
   },
 
   "tools": {

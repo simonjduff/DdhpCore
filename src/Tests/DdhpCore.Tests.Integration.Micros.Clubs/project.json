@@ -9,7 +9,8 @@
     "dotnet-test-xunit": "1.0.0-rc2-build10025",
     "DdhpCore.FrontEnd": "1.0.0-*",
     "DdhpCore.Micros.Clubs": "1.0.0",
-    "Microsoft.AspNetCore.TestHost": "1.0.0"
+    "Microsoft.AspNetCore.TestHost": "1.0.0",
+    "AWSSDK.DynamoDBv2": "3.3.0.1"
   },
   "testRunner": "xunit",
   "frameworks": {
