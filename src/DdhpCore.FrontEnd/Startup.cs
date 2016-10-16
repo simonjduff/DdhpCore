@@ -1,6 +1,8 @@
-﻿using DdhpCore.Micros.Runner;
+﻿using System;
+using DdhpCore.Micros.Runner;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -42,7 +44,14 @@ namespace DdhpCore.FrontEnd
             applicationLifetime.ApplicationStopping.Register(worker.StopApplication);
             worker.Run();
 
-            app.UseMvc();
+            app.UseMvc(BuildRoutes);
+        }
+
+        private void BuildRoutes(IRouteBuilder routes)
+        {
+            routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Home}/{action=Index}/{id?}");
         }
     }
 }
