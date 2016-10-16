@@ -3,9 +3,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using DdhpCore.FrontEnd;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -18,11 +18,15 @@ namespace DdhpCore.Tests.Integration.Micros.Clubs
 
         public Tests(ITestOutputHelper output)
         {
-            var appRoot = ApplicationRoot();
+            var appSettings = new AppSettings(new ConfigurationBuilder()
+                                                    .AddJsonFile("appsettings.json")
+                                                    .AddEnvironmentVariables()
+                                                    .Build());
 
             var testServer = new TestServer(new WebHostBuilder()
-                .UseContentRoot(appRoot.FullName)
-                .UseStartup<Startup>());
+                .UseEnvironment("Development")
+                .UseContentRoot(ApplicationRoot().FullName)
+                .UseStartup<TestStartup>());
             _client = testServer.CreateClient();
         }
 
