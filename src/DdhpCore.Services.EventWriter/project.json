@@ -2,9 +2,9 @@
   "version": "1.0.0-*",
 
   "dependencies": {
+    "Microsoft.Extensions.Logging": "1.0.0",
     "NETStandard.Library": "1.6.0",
-    "Microsoft.Extensions.Logging": "1.0.0-rc2-final",
-    "WindowsAzure.Storage": "7.2.0"
+    "WindowsAzure.Storage": "7.2.1"
   },
 
   "frameworks": {
