@@ -7,7 +7,7 @@
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
     <ProjectGuid>6787ee65-a811-4ba0-8b92-b4f43c0d6a27</ProjectGuid>
-    <RootNamespace>DdhpCore.Tests.Integration.Micros</RootNamespace>
+    <RootNamespace>DdhpCore.Tests.Integration.Micros.Clubs</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">.\obj</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">.\bin\</OutputPath>
   </PropertyGroup>
