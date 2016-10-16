@@ -17,7 +17,8 @@
       "version": "1.0.1",
       "type": "platform"
     },
-    "AWSSDK.DynamoDBv2": "3.3.0.1"
+    "AWSSDK.DynamoDBv2": "3.3.0.1",
+    "AWSSDK.Extensions.NETCore.Setup": "3.3.0.1"
   },
 
   "tools": {

@@ -31,21 +31,6 @@ namespace DdhpCore.Tests.Integration.Micros.Clubs
                 .ConfigureServices(ConfigureServices)
                 .UseStartup<TestStartup>());
             Client = testServer.CreateClient();
-
-            const string tableName = "clubs";
-            var desc = new DescribeTableRequest
-            {
-                TableName = tableName
-            };
-
-            try
-            {
-                var result = AmazonDynamoDbClient.DescribeTableAsync(desc).Result;
-            }
-            catch (ResourceNotFoundException)
-            {
-                //Create the table here
-            }
         }
 
         private void ConfigureServices(IServiceCollection services)
@@ -81,10 +66,20 @@ namespace DdhpCore.Tests.Integration.Micros.Clubs
         [Fact]
         public async Task Test1() 
         {
+            try
+            {
+                const string tableName = "clubs";
+                var result = await AmazonDynamoDbClient.DescribeTableAsync(tableName);
+            }
+            catch (ResourceNotFoundException)
+            {
+                //Create the table here
+            }
+
             var response = await Client.GetAsync("/api/clubs");
             response.EnsureSuccessStatusCode();
             _output.WriteLine(await response.Content.ReadAsStringAsync());
-            Assert.True(false);
+            Assert.True(true);
         }
     }
 }

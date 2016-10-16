@@ -1,4 +1,5 @@
 ﻿using System;
+using Amazon.DynamoDBv2;
 using DdhpCore.Micros.Runner;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -28,6 +29,9 @@ namespace DdhpCore.FrontEnd
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
+            services.AddAWSService<IAmazonDynamoDB>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
