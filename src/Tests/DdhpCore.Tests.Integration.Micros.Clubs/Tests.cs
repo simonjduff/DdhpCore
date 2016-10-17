@@ -35,8 +35,7 @@ namespace DdhpCore.Tests.Integration.Micros.Clubs
 
         private void ConfigureServices(IServiceCollection services)
         {
-            var dynamoClient = AmazonDynamoDbClient;
-            services.AddSingleton<IAmazonDynamoDB>(dynamoClient);
+            services.AddSingleton<IAmazonDynamoDB>(AmazonDynamoDbClient);
         }
 
         private static AmazonDynamoDBClient AmazonDynamoDbClient
