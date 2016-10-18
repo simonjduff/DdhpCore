@@ -2,6 +2,7 @@
 using System.Linq;
 using LegacyDataImporter.LegacyModels;
 using LegacyDataImporter.Models;
+using LegacyDataImporter.Writers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -24,6 +25,7 @@ namespace LegacyDataImporter
             get
             {
                 const string envVar = "DbConnectionString";
+
                 return Configuration[envVar];
             }
         }
@@ -47,6 +49,7 @@ namespace LegacyDataImporter
 
             if (IsDevelopment)
             {
+                Console.WriteLine("DEVELOPMENT");
                 configuration.AddUserSecrets();
             }
 
@@ -58,6 +61,12 @@ namespace LegacyDataImporter
 
         private void Run()
         {
+            if (string.IsNullOrEmpty(StorageConnectionString))
+            {
+                Console.WriteLine("No storage credentials");
+                return;
+            }
+
             var storageAccount = CloudStorageAccount.Parse(StorageConnectionString);
             var tableClient = storageAccount.CreateCloudTableClient();
 
@@ -74,6 +83,8 @@ namespace LegacyDataImporter
             var dbContext = new DdhpContext(DatabaseConnectionString);
 
             ImportTeams(dbContext, table);
+
+            Console.WriteLine("SUCCESS");
         }
 
         private void ImportTeams(DdhpContext dbContext, CloudTable table)
@@ -81,11 +92,10 @@ namespace LegacyDataImporter
             var teams = dbContext.Teams;
 
             var clubs = teams.Select(team => MapTeamToClub(team));
-
-            TableBatchOperation batchOperation = new TableBatchOperation();
-            clubs.ToList().ForEach(club => batchOperation.InsertOrReplace(club));
-
-            table.ExecuteBatchAsync(batchOperation).Wait();
+            
+            var writer = new ClubsTableWriter(table);
+            writer.ClearTable();
+            writer.WriteData(clubs);
         }
 
         private Club MapTeamToClub(Team team)
