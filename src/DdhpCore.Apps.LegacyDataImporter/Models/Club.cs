@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAzure.Storage.Table;
+﻿using System;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace LegacyDataImporter.Models
 {
@@ -8,6 +9,7 @@ namespace LegacyDataImporter.Models
         {
             PartitionKey = "ALL_CLUBS";
         }
+        public Guid Id { get; set; }
         public int LegacyId { get; set; }
         public string CoachName { get; set; }
 

@@ -105,7 +105,8 @@ namespace LegacyDataImporter
                 LegacyId = team.Id,
                 CoachName = team.CoachName,
                 ClubName = team.TeamName,
-                Email = team.Email
+                Email = team.Email,
+                Id = Guid.NewGuid()
             };
         }
     }
