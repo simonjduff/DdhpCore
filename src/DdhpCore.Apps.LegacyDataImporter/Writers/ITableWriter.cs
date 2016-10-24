@@ -6,44 +6,70 @@ namespace LegacyDataImporter.Writers
 {
     public interface ITableWriter<in T> where T : ITableEntity
     {
-        void WriteData(IEnumerable<T> data);
-        void ClearTable();
+        ITableWriter<T> WriteData(IEnumerable<T> data);
+        ITableWriter<T> ClearTable();
     }
 
-    public abstract class TableWriter<T> : ITableWriter<T> where T : ITableEntity
+    public class TableWriter<T> : ITableWriter<T> where T : ITableEntity, new()
     {
         protected readonly CloudTable Table;
 
-        protected TableWriter(CloudTable table)
+        public TableWriter(CloudTable table)
         {
             Table = table;
         }
 
-        public void WriteData(IEnumerable<T> data)
+        public ITableWriter<T> WriteData(IEnumerable<T> data)
         {
-            var insert = new TableBatchOperation();
+            var partitions = data.ToLookup(q => q.PartitionKey, q => q);
 
-            data.ToList().ForEach(datum => insert.Add(TableOperation.Insert(datum)));
+            foreach (var partition in partitions)
+            {
+                var insert = new TableBatchOperation();
 
-            Table.ExecuteBatchAsync(insert).Wait();
+                partition.ToList().ForEach(datum => insert.Add(TableOperation.Insert(datum)));
+
+                Table.ExecuteBatchAsync(insert).GetAwaiter().GetResult();
+            }
+            return this;
         }
 
-        public void ClearTable()
+        public ITableWriter<T> ClearTable()
         {
-            var data = GetAllData().ToList();
+            var data = GetAllData();
 
             if (!data.Any())
             {
-                return;
+                return this;
             }
+            var partitions = data.ToLookup(q => q.PartitionKey, q => q);
 
-            var delete = new TableBatchOperation();
+            foreach (var partition in partitions)
+            {
+                var delete = new TableBatchOperation();
 
-            data.ForEach(datum => delete.Add(TableOperation.Delete(datum)));
+                partition.ToList().ForEach(datum => delete.Add(TableOperation.Delete(datum)));
 
-            Table.ExecuteBatchAsync(delete).Wait();
+                Table.ExecuteBatchAsync(delete).GetAwaiter().GetResult();
+            }
+            return this;
         }
 
-        public abstract IEnumerable<T> GetAllData();
+        public IEnumerable<T> GetAllData()
+        {
+            var operation = new TableQuery<T>();
+            TableContinuationToken continuer = null;
+
+            List<T> clubs = new List<T>();
+
+            do
+            {
+                var tableQuerySegment = Table.ExecuteQuerySegmentedAsync(operation, continuer).Result;
+                clubs.AddRange(tableQuerySegment.Results);
+                continuer = tableQuerySegment.ContinuationToken;
+            } while (continuer != null);
+
+            return clubs;
+        }
     }
 }

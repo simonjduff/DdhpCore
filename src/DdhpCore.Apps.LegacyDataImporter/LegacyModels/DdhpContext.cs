@@ -1,7 +1,6 @@
-﻿using LegacyDataImporter.LegacyModels;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
-namespace LegacyDataImporter
+namespace LegacyDataImporter.LegacyModels
 {
     public class DdhpContext : DbContext
     {
@@ -13,6 +12,7 @@ namespace LegacyDataImporter
         }
 
         public DbSet<Team> Teams { get; set; }
+        public DbSet<Round> Rounds { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

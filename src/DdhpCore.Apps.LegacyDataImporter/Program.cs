@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Linq;
+using AutoMapper;
+using LegacyDataImporter.Importers;
 using LegacyDataImporter.LegacyModels;
 using LegacyDataImporter.Models;
 using LegacyDataImporter.Writers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
+using LegacyRound = LegacyDataImporter.LegacyModels.Round;
+using Round = LegacyDataImporter.Models.Round;
 
 namespace LegacyDataImporter
 {
@@ -59,6 +63,40 @@ namespace LegacyDataImporter
             program.Run();
         }
 
+        private static IMapper _mapper;
+        private static IMapper Mapper
+        {
+            get
+            {
+                Console.Write("Building map...");
+                if (_mapper != null)
+                {
+                    return _mapper;
+                }
+
+                var config = new MapperConfiguration(cfg =>
+                {
+                    cfg.CreateMap<LegacyRound, Round>();
+                    cfg.CreateMap<Team, Club>()
+                        .ConvertUsing(team => new Club
+                                        {
+                                            LegacyId = team.Id,
+                                            CoachName = team.CoachName,
+                                            ClubName = team.TeamName,
+                                            Email = team.Email,
+                                            Id = Guid.NewGuid()
+                                        });
+                });
+
+                var mapper = config.CreateMapper();
+                Console.WriteLine("Done");
+                return _mapper = mapper;
+            }
+        }
+
+        const string ClubsTable = "clubs";
+        const string RoundsTable = "rounds";
+
         private void Run()
         {
             if (string.IsNullOrEmpty(StorageConnectionString))
@@ -70,44 +108,14 @@ namespace LegacyDataImporter
             var storageAccount = CloudStorageAccount.Parse(StorageConnectionString);
             var tableClient = storageAccount.CreateCloudTableClient();
 
-            var table = tableClient.GetTableReference("clubs");
-            try
-            {
-                table.CreateIfNotExistsAsync().Wait();
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.Flatten().InnerException;
-            }
-
             var dbContext = new DdhpContext(DatabaseConnectionString);
 
-            ImportTeams(dbContext, table);
+            var importer = new Importer(tableClient, Mapper);
+            
+            importer.Import<Team, Club>(ClubsTable, dbContext.Teams);
+            importer.Import<LegacyRound, Round>(RoundsTable, dbContext.Rounds);
 
             Console.WriteLine("SUCCESS");
-        }
-
-        private void ImportTeams(DdhpContext dbContext, CloudTable table)
-        {
-            var teams = dbContext.Teams;
-
-            var clubs = teams.Select(team => MapTeamToClub(team));
-            
-            var writer = new ClubsTableWriter(table);
-            writer.ClearTable();
-            writer.WriteData(clubs);
-        }
-
-        private Club MapTeamToClub(Team team)
-        {
-            return new Club
-            {
-                LegacyId = team.Id,
-                CoachName = team.CoachName,
-                ClubName = team.TeamName,
-                Email = team.Email,
-                Id = Guid.NewGuid()
-            };
         }
     }
 }
