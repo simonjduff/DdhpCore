@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using LegacyDataImporter.Writers;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.WindowsAzure.Storage.Table;
 using System.Linq;
 using AutoMapper;
@@ -18,7 +18,7 @@ namespace LegacyDataImporter.Importers
             _tableClient = tableClient;
         }
 
-        public void Import<TFrom, TTo>(string tableName, DbSet<TFrom> dbRoot)
+        public void Import<TFrom, TTo>(string tableName, IEnumerable<TFrom> dbRoot)
             where TFrom : class 
             where TTo : ITableEntity, new()
         {

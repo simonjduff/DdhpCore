@@ -13,6 +13,8 @@ namespace LegacyDataImporter.LegacyModels
 
         public DbSet<Team> Teams { get; set; }
         public DbSet<Round> Rounds { get; set; }
+        public DbSet<Player> Players { get; set; }
+        public DbSet<AflTeam> AflTeams { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

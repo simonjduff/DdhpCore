@@ -1,15 +1,16 @@
 ﻿using System;
-using System.Linq;
 using AutoMapper;
 using LegacyDataImporter.Importers;
 using LegacyDataImporter.LegacyModels;
-using LegacyDataImporter.Models;
-using LegacyDataImporter.Writers;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Table;
+using LegacyPlayer = LegacyDataImporter.LegacyModels.Player;
 using LegacyRound = LegacyDataImporter.LegacyModels.Round;
+using Player = LegacyDataImporter.Models.Player;
 using Round = LegacyDataImporter.Models.Round;
+using System.Linq;
+using LegacyDataImporter.Models;
 
 namespace LegacyDataImporter
 {
@@ -74,19 +75,7 @@ namespace LegacyDataImporter
                     return _mapper;
                 }
 
-                var config = new MapperConfiguration(cfg =>
-                {
-                    cfg.CreateMap<LegacyRound, Round>();
-                    cfg.CreateMap<Team, Club>()
-                        .ConvertUsing(team => new Club
-                                        {
-                                            LegacyId = team.Id,
-                                            CoachName = team.CoachName,
-                                            ClubName = team.TeamName,
-                                            Email = team.Email,
-                                            Id = Guid.NewGuid()
-                                        });
-                });
+                var config = new MapperConfiguration(ClassMaps.BuildMaps);
 
                 var mapper = config.CreateMapper();
                 Console.WriteLine("Done");
@@ -96,6 +85,7 @@ namespace LegacyDataImporter
 
         const string ClubsTable = "clubs";
         const string RoundsTable = "rounds";
+        const string PlayersTable = "players";
 
         private void Run()
         {
@@ -111,9 +101,10 @@ namespace LegacyDataImporter
             var dbContext = new DdhpContext(DatabaseConnectionString);
 
             var importer = new Importer(tableClient, Mapper);
-            
+
             importer.Import<Team, Club>(ClubsTable, dbContext.Teams);
             importer.Import<LegacyRound, Round>(RoundsTable, dbContext.Rounds);
+            importer.Import<LegacyPlayer, Player>(PlayersTable, dbContext.Players.Include(q => q.CurrentAflTeam).ToList());
 
             Console.WriteLine("SUCCESS");
         }
