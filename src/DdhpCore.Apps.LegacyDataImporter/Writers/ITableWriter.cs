@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using LegacyDataImporter.Extensions;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace LegacyDataImporter.Writers
@@ -22,21 +24,27 @@ namespace LegacyDataImporter.Writers
         public ITableWriter<T> WriteData(IEnumerable<T> data)
         {
             var partitions = data.ToLookup(q => q.PartitionKey, q => q);
+            const int maximumBatchSize = 100;
 
             foreach (var partition in partitions)
             {
-                var insert = new TableBatchOperation();
+                foreach (var batch in partition.Partition(maximumBatchSize))
+                {
+                    var insert = new TableBatchOperation();
 
-                partition.ToList().ForEach(datum => insert.Add(TableOperation.Insert(datum)));
+                    batch.ToList().ForEach(datum => insert.Add(TableOperation.Insert(datum)));
 
-                Table.ExecuteBatchAsync(insert).GetAwaiter().GetResult();
+                    Table.ExecuteBatchAsync(insert).GetAwaiter().GetResult();
+                }
             }
+
             return this;
         }
 
         public ITableWriter<T> ClearTable()
         {
             var data = GetAllData();
+            const int batchSize = 100;
 
             if (!data.Any())
             {
@@ -46,11 +54,14 @@ namespace LegacyDataImporter.Writers
 
             foreach (var partition in partitions)
             {
-                var delete = new TableBatchOperation();
+                foreach (var batch in partition.Partition(batchSize))
+                {
+                    var delete = new TableBatchOperation();
 
-                partition.ToList().ForEach(datum => delete.Add(TableOperation.Delete(datum)));
+                    batch.ToList().ForEach(datum => delete.Add(TableOperation.Delete(datum)));
 
-                Table.ExecuteBatchAsync(delete).GetAwaiter().GetResult();
+                    Table.ExecuteBatchAsync(delete).GetAwaiter().GetResult();
+                }
             }
             return this;
         }

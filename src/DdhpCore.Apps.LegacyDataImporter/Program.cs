@@ -5,10 +5,12 @@ using LegacyDataImporter.LegacyModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.WindowsAzure.Storage;
+using LegacyContract = LegacyDataImporter.LegacyModels.Contract;
 using LegacyPlayer = LegacyDataImporter.LegacyModels.Player;
 using LegacyRound = LegacyDataImporter.LegacyModels.Round;
 using Player = LegacyDataImporter.Models.Player;
 using Round = LegacyDataImporter.Models.Round;
+using Contract = LegacyDataImporter.Models.Contract;
 using System.Linq;
 using LegacyDataImporter.Models;
 
@@ -86,6 +88,7 @@ namespace LegacyDataImporter
         const string ClubsTable = "clubs";
         const string RoundsTable = "rounds";
         const string PlayersTable = "players";
+        const string ContractsTable = "contracts";
 
         private void Run()
         {
@@ -105,6 +108,7 @@ namespace LegacyDataImporter
             importer.Import<Team, Club>(ClubsTable, dbContext.Teams);
             importer.Import<LegacyRound, Round>(RoundsTable, dbContext.Rounds);
             importer.Import<LegacyPlayer, Player>(PlayersTable, dbContext.Players.Include(q => q.CurrentAflTeam).ToList());
+            importer.Import<LegacyContract, Contract>(ContractsTable, dbContext.Contracts);
 
             Console.WriteLine("SUCCESS");
         }

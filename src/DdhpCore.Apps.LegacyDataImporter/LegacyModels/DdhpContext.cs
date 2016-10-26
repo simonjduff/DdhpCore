@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace LegacyDataImporter.LegacyModels
 {
@@ -15,6 +16,7 @@ namespace LegacyDataImporter.LegacyModels
         public DbSet<Round> Rounds { get; set; }
         public DbSet<Player> Players { get; set; }
         public DbSet<AflTeam> AflTeams { get; set; }
+        public DbSet<Contract> Contracts { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
