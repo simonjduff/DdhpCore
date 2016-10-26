@@ -9,21 +9,18 @@ namespace LegacyDataImporter.Extensions
         public static IEnumerable<IEnumerable<T>> Partition<T>(this IEnumerable<T> input, int partitionSize)
         {
             var inputArray = input.ToArray();
-            int partitionCount = (int)Math.Ceiling(inputArray.Length/(double)partitionSize);
-            int remainder = inputArray.Length%partitionSize;
+            var partitionCount = (int)Math.Ceiling(inputArray.Length / (double)partitionSize);
+            var remainder = inputArray.Length % partitionSize;
             var arrays = new T[partitionCount][];
 
-            for (int i = 0; i < partitionCount - 1; i++)
+            for (var i = 0; i < partitionCount - 1; i++)
             {
-                arrays[i] = new T[partitionSize];
-                Array.Copy(inputArray, i*partitionSize, arrays[i], 0, partitionSize);
+                var segment = new ArraySegment<T>(inputArray, i * partitionSize, partitionSize);
+                yield return segment;
             }
 
             var lastArrayIndex = arrays.Length - 1;
-            arrays[lastArrayIndex] = new T[remainder];
-            Array.Copy(inputArray, lastArrayIndex * partitionSize, arrays[lastArrayIndex], 0, remainder);
-
-            return arrays;
+            yield return new ArraySegment<T>(inputArray, lastArrayIndex * partitionSize, remainder);
         }
     }
 }
