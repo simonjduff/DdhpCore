@@ -34,7 +34,7 @@ namespace LegacyDataImporter.Models
         public string TeamJson
         {
             get { return JsonConvert.SerializeObject(Team); }
-            set { Team = (IEnumerable<TeamPlayer>) JsonConvert.DeserializeObject(value); }
+            set { Team = (IEnumerable<TeamPlayer>) JsonConvert.DeserializeObject<IEnumerable<TeamPlayer>>(value); }
         }
 
         [IgnoreProperty]
