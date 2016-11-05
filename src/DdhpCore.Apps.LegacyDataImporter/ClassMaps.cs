@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using AutoMapper;
 using LegacyDataImporter.LegacyModels;
 using LegacyDataImporter.Models;
@@ -60,7 +58,8 @@ namespace LegacyDataImporter
                             Name = player.CurrentAflTeam.Name,
                             ShortName = player.CurrentAflTeam.ShortName
                         },
-                        FootywireName = player.FootywireName
+                        FootywireName = player.FootywireName,
+                        LegacyId = player.Id
                     };
                 });
             cfg.CreateMap<Contract, Models.Contract>()

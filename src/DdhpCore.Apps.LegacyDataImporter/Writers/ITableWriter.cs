@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using LegacyDataImporter.Extensions;
 using Microsoft.WindowsAzure.Storage.Table;
