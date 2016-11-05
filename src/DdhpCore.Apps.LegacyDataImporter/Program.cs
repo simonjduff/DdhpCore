@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using AutoMapper;
 using LegacyDataImporter.Importers;
 using LegacyDataImporter.LegacyModels;
@@ -89,6 +90,7 @@ namespace LegacyDataImporter
         const string RoundsTable = "rounds";
         const string PlayersTable = "players";
         const string ContractsTable = "contracts";
+        const string PickedTeamsTable = "pickedTeams";
 
         private void Run()
         {
@@ -103,14 +105,71 @@ namespace LegacyDataImporter
 
             var dbContext = new DdhpContext(DatabaseConnectionString);
 
-            var importer = new Importer(tableClient, Mapper);
+            var importerFactory = new ImporterFactory(tableClient, Mapper);
 
-            importer.Import<Team, Club>(ClubsTable, dbContext.Teams);
-            importer.Import<LegacyRound, Round>(RoundsTable, dbContext.Rounds);
-            importer.Import<LegacyPlayer, Player>(PlayersTable, dbContext.Players.Include(q => q.CurrentAflTeam).ToList());
-            importer.Import<LegacyContract, Contract>(ContractsTable, dbContext.Contracts);
+            var clubs = importerFactory
+                .Importer<Team,Club>(ClubsTable)
+                .Import(dbContext.Teams);
+            importerFactory
+                .Importer<LegacyRound, Round>(RoundsTable)
+                .Import(dbContext.Rounds);
+            var players = importerFactory
+                .Importer<LegacyPlayer, Player>(PlayersTable)
+                .Import(dbContext.Players.Include(q => q.CurrentAflTeam));
+            importerFactory
+                .Importer<LegacyContract, Contract>(ContractsTable)
+                .Import(dbContext.Contracts);
+
+            importerFactory
+                .Importer<RoundPlayer, PickedTeam>(PickedTeamsTable)
+                .Mapper(PickedTeamMapper(clubs, players))
+                .Import(dbContext.RoundPlayers
+                    .Include(q => q.Player)
+                    .Include(q => q.Contract) 
+                    .Include(q => q.Round));
 
             Console.WriteLine("SUCCESS");
+        }
+
+        private Func<IQueryable<RoundPlayer>, IEnumerable<PickedTeam>> PickedTeamMapper(IEnumerable<Club> clubs, IEnumerable<Player> players)
+        {
+            var clubsDictionary = clubs.ToDictionary(q => q.LegacyId);
+            var playersDictionary = players.ToDictionary(q => q.LegacyId);
+
+            return (roundPlayers) =>
+            {
+                var result = new List<PickedTeam>();
+
+                var roundData = roundPlayers.GroupBy(q => q.RoundId);
+                foreach (var round in roundData)
+                {
+                    var teamData = round.GroupBy(q => q.Contract.TeamId);
+
+                    foreach (var team in teamData)
+                    {
+                        var teamPlayers = new List<PickedTeam.TeamPlayer>();
+
+                        var pickedTeam = new PickedTeam
+                        {
+                            Round = round.Key,
+                            ClubId = clubsDictionary[team.Key].Id,
+                            Id = Guid.NewGuid(),
+                            Team = new List<PickedTeam.TeamPlayer>()
+                        };
+                        teamPlayers.AddRange(
+                            team.Select(
+                                q =>
+                                    new PickedTeam.TeamPlayer
+                                    {
+                                        PickedPosition = q.PickedPosition.Single(),
+                                        PlayerId = playersDictionary[q.PlayerId].Id
+                                    }));
+                        pickedTeam.Team = teamPlayers;
+                        result.Add(pickedTeam);
+                    }
+                }
+                return result;
+            };
         }
     }
 }

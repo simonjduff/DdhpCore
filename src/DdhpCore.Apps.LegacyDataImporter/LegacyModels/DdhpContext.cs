@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace LegacyDataImporter.LegacyModels
 {
@@ -17,10 +16,16 @@ namespace LegacyDataImporter.LegacyModels
         public DbSet<Player> Players { get; set; }
         public DbSet<AflTeam> AflTeams { get; set; }
         public DbSet<Contract> Contracts { get; set; }
+        public DbSet<RoundPlayer> RoundPlayers { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(_connectionString);
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<RoundPlayer>().HasKey(t => new { t.ContractId, t.RoundId});
         }
     }
 }

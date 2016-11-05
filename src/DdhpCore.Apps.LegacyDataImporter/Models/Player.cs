@@ -46,5 +46,8 @@ namespace LegacyDataImporter.Models
             public string Name { get; set; }
             public string ShortName { get; set; }
         }
+
+        [IgnoreProperty]
+        public int LegacyId { get; set; }
     }
 }
