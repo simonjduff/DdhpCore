@@ -4,6 +4,7 @@ using AutoMapper;
 using LegacyDataImporter.LegacyModels;
 using LegacyDataImporter.Models;
 using Contract = LegacyDataImporter.LegacyModels.Contract;
+using Fixture = LegacyDataImporter.LegacyModels.Fixture;
 using Player = LegacyDataImporter.LegacyModels.Player;
 using Round = LegacyDataImporter.LegacyModels.Round;
 
@@ -72,6 +73,13 @@ namespace LegacyDataImporter
                         PlayerId = playerIdMaps[contract.PlayerId],
                         ClubId = clubIdMaps[contract.TeamId]
                     });
+            cfg.CreateMap<Fixture, Models.Fixture>()
+                .ConvertUsing(fixture => new Models.Fixture
+                {
+                    RoundId = fixture.Round,
+                    Home = clubIdMaps[fixture.HomeTeamId],
+                    Away = clubIdMaps[fixture.AwayTeamId]
+                });
         }
     }
 }

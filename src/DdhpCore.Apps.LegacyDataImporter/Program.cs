@@ -7,11 +7,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using LegacyContract = LegacyDataImporter.LegacyModels.Contract;
+using LegacyFixture = LegacyDataImporter.LegacyModels.Fixture;
 using LegacyPlayer = LegacyDataImporter.LegacyModels.Player;
 using LegacyRound = LegacyDataImporter.LegacyModels.Round;
+using Contract = LegacyDataImporter.Models.Contract;
+using Fixture = LegacyDataImporter.Models.Fixture;
 using Player = LegacyDataImporter.Models.Player;
 using Round = LegacyDataImporter.Models.Round;
-using Contract = LegacyDataImporter.Models.Contract;
 using System.Linq;
 using LegacyDataImporter.Models;
 
@@ -91,6 +93,7 @@ namespace LegacyDataImporter
         const string PlayersTable = "players";
         const string ContractsTable = "contracts";
         const string PickedTeamsTable = "pickedTeams";
+        const string FixturesTable = "fixtures";
 
         private void Run()
         {
@@ -113,13 +116,15 @@ namespace LegacyDataImporter
             importerFactory
                 .Importer<LegacyRound, Round>(RoundsTable)
                 .Import(dbContext.Rounds);
+            importerFactory
+                .Importer<LegacyFixture, Fixture>(FixturesTable)
+                .Import(dbContext.Fixtures);
             var players = importerFactory
                 .Importer<LegacyPlayer, Player>(PlayersTable)
                 .Import(dbContext.Players.Include(q => q.CurrentAflTeam));
             importerFactory
                 .Importer<LegacyContract, Contract>(ContractsTable)
                 .Import(dbContext.Contracts);
-
             importerFactory
                 .Importer<RoundPlayer, PickedTeam>(PickedTeamsTable)
                 .Mapper(PickedTeamMapper(clubs, players))
