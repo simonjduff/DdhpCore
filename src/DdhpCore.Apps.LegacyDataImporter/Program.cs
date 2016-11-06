@@ -10,10 +10,12 @@ using LegacyContract = LegacyDataImporter.LegacyModels.Contract;
 using LegacyFixture = LegacyDataImporter.LegacyModels.Fixture;
 using LegacyPlayer = LegacyDataImporter.LegacyModels.Player;
 using LegacyRound = LegacyDataImporter.LegacyModels.Round;
+using LegacyStat = LegacyDataImporter.LegacyModels.Stat;
 using Contract = LegacyDataImporter.Models.Contract;
 using Fixture = LegacyDataImporter.Models.Fixture;
 using Player = LegacyDataImporter.Models.Player;
 using Round = LegacyDataImporter.Models.Round;
+using Stat = LegacyDataImporter.Models.Stat;
 using System.Linq;
 using LegacyDataImporter.Models;
 
@@ -94,6 +96,8 @@ namespace LegacyDataImporter
         const string ContractsTable = "contracts";
         const string PickedTeamsTable = "pickedTeams";
         const string FixturesTable = "fixtures";
+        const string AflClubsTable = "aflclubs";
+        const string StatsTable = "stats";
 
         private void Run()
         {
@@ -117,6 +121,9 @@ namespace LegacyDataImporter
                 .Importer<LegacyRound, Round>(RoundsTable)
                 .Import(dbContext.Rounds);
             importerFactory
+                .Importer<AflTeam, AflClub>(AflClubsTable)
+                .Import(dbContext.AflTeams);
+            importerFactory
                 .Importer<LegacyFixture, Fixture>(FixturesTable)
                 .Import(dbContext.Fixtures);
             var players = importerFactory
@@ -133,6 +140,20 @@ namespace LegacyDataImporter
                     .Include(q => q.Contract) 
                     .Include(q => q.Round));
 
+            var statRounds = dbContext.Stats.GroupBy(q => q.Round);
+
+            importerFactory
+                .Importer<LegacyStat, Stat>(StatsTable)
+                .LogStart(() => statRounds.First().Key.ToString())
+                .Import(statRounds.First().AsQueryable());
+
+            foreach (var statRound in statRounds.Skip(1))
+            {
+                importerFactory
+                .Importer<LegacyStat, Stat>(StatsTable)
+                .LogStart(() => statRound.Key.ToString())
+                .Import(statRound.AsQueryable(), false);
+            }
             Console.WriteLine("SUCCESS");
         }
 

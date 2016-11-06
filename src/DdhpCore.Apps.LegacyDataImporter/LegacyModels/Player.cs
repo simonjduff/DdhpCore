@@ -15,12 +15,4 @@ namespace LegacyDataImporter.LegacyModels
         public string FootywireName { get; set; }
 
     }
-
-    [Table("Teams", Schema = "afl")]
-    public class AflTeam
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string ShortName { get; set; }
-    }
 }

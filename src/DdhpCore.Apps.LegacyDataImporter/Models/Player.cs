@@ -4,10 +4,10 @@ using Newtonsoft.Json;
 
 namespace LegacyDataImporter.Models
 {
-    public class Player : TableEntity
+    public partial class Player : TableEntity
     {
         private Guid _id;
-        private AflClub _currentAflClub;
+        private Guid _currentAflClub;
 
         public Guid Id
         {
@@ -21,31 +21,18 @@ namespace LegacyDataImporter.Models
 
         public string Name { get; set; }
 
-        public AflClub CurrentAflClub
+        public Guid CurrentAflClubId
         {
             get { return _currentAflClub; }
             set
             {
-                PartitionKey = value.ShortName;
+                PartitionKey = value.ToString();
                 _currentAflClub = value;
             }
         }
 
-        [Obsolete("For internal use only")]
-        public string CurrentAflClubString
-        {
-            get { return JsonConvert.SerializeObject(_currentAflClub); }
-            set { _currentAflClub = JsonConvert.DeserializeObject<AflClub>(value); }
-        }
-
         public bool Active { get; set; }
         public string FootywireName { get; set; }
-
-        public class AflClub
-        {
-            public string Name { get; set; }
-            public string ShortName { get; set; }
-        }
 
         [IgnoreProperty]
         public int LegacyId { get; set; }

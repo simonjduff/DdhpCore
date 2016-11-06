@@ -14,6 +14,8 @@ namespace LegacyDataImporter.Importers
         private readonly IMapper _mapper;
         private Func<IQueryable<TFrom>, IEnumerable<TTo>> _mapperFunc;
         private readonly string _tableName;
+        private Func<string> _logStart = () => string.Empty;
+        private Func<string> _logEnd = () => string.Empty;
 
         public Importer(CloudTableClient tableClient, IMapper mapper, string tableName)
         {
@@ -34,17 +36,48 @@ namespace LegacyDataImporter.Importers
             return this;
         }
 
-        public IEnumerable<TTo> Import(IQueryable<TFrom> dbRoot)
+        public Importer<TFrom, TTo> LogStart(Func<string> logger)
+        {
+            if (logger == null)
+            {
+                throw new Exception("LogStart cannot be null");
+            }
+
+            _logStart = logger;
+            return this;
+        }
+
+        public Importer<TFrom, TTo> LogEnd(Func<string> logger)
+        {
+            if (logger == null)
+            {
+                throw new Exception("LogEnd cannot be null");
+            }
+            _logEnd = logger;
+            return this;
+        }
+
+        public IEnumerable<TTo> Import(IQueryable<TFrom> dbRoot, bool clearTable = true)
         {
             Console.Write($"Importing {_tableName}...");
+            var logStart = _logStart();
+            Console.Write(!string.IsNullOrWhiteSpace(logStart) ? $"{logStart}..." : string.Empty);
             var table = _tableClient.GetTableReference(_tableName);
             table.CreateIfNotExistsAsync().GetAwaiter().GetResult();
 
             var writer = new TableWriter<TTo>(table);
             var mappedData = _mapperFunc(dbRoot);
+
+            if (clearTable)
+            {
+                writer.ClearTable();
+            }
+
             writer
-                .ClearTable()
                 .WriteData(mappedData);
+
+            var logEnd = _logEnd();
+            Console.Write(!string.IsNullOrWhiteSpace(logEnd) ? $"{logEnd}..." : string.Empty);
 
             Console.WriteLine("Done");
 

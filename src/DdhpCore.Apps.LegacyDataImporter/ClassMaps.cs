@@ -7,6 +7,7 @@ using Contract = LegacyDataImporter.LegacyModels.Contract;
 using Fixture = LegacyDataImporter.LegacyModels.Fixture;
 using Player = LegacyDataImporter.LegacyModels.Player;
 using Round = LegacyDataImporter.LegacyModels.Round;
+using Stat = LegacyDataImporter.LegacyModels.Stat;
 
 namespace LegacyDataImporter
 {
@@ -16,6 +17,7 @@ namespace LegacyDataImporter
         {
             var playerIdMaps = new Dictionary<int, Guid>();
             var clubIdMaps = new Dictionary<int, Guid>();
+            var aflClubMaps = new Dictionary<int, Guid>();
 
             cfg.CreateMap<Round, Models.Round>();
             cfg.CreateMap<Team, Club>()
@@ -54,11 +56,7 @@ namespace LegacyDataImporter
                         Name = $"{player.FirstName}{middleNames} {player.LastName}",
                         Id = playerId,
                         Active = player.Active,
-                        CurrentAflClub = new Models.Player.AflClub
-                        {
-                            Name = player.CurrentAflTeam.Name,
-                            ShortName = player.CurrentAflTeam.ShortName
-                        },
+                        CurrentAflClubId = aflClubMaps[player.CurrentAflTeamId],
                         FootywireName = player.FootywireName,
                         LegacyId = player.Id
                     };
@@ -80,6 +78,21 @@ namespace LegacyDataImporter
                     Home = clubIdMaps[fixture.HomeTeamId],
                     Away = clubIdMaps[fixture.AwayTeamId]
                 });
+            cfg.CreateMap<AflTeam, AflClub>()
+                .ConvertUsing(team =>
+                {
+                    var newId = Guid.NewGuid();
+                    aflClubMaps.Add(team.Id, newId);
+                    return new AflClub
+                    {
+                        Id = newId,
+                        ShortName = team.ShortName,
+                        Name = team.Name
+                    };
+                });
+            cfg.CreateMap<Stat, Models.Stat>()
+                .ForMember(stat => stat.AflClubId, config => config.MapFrom(oldStat => aflClubMaps[oldStat.AFLTeamId]))
+                .ForMember(stat => stat.PlayerId, config => config.MapFrom(oldStat => playerIdMaps[oldStat.PlayerId]));
         }
     }
 }

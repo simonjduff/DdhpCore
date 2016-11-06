@@ -18,6 +18,7 @@ namespace LegacyDataImporter.LegacyModels
         public DbSet<Contract> Contracts { get; set; }
         public DbSet<RoundPlayer> RoundPlayers { get; set; }
         public DbSet<Fixture> Fixtures { get; set; }
+        public DbSet<Stat> Stats { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
