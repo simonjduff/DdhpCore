@@ -42,7 +42,7 @@ namespace LegacyDataImporter.Writers
 
         public ITableWriter<T> ClearTable()
         {
-            var data = GetAllData();
+            var data = Table.GetAllData<T>();
             const int batchSize = 100;
 
             if (!data.Any())
@@ -63,23 +63,6 @@ namespace LegacyDataImporter.Writers
                 }
             }
             return this;
-        }
-
-        public IEnumerable<T> GetAllData()
-        {
-            var operation = new TableQuery<T>();
-            TableContinuationToken continuer = null;
-
-            List<T> clubs = new List<T>();
-
-            do
-            {
-                var tableQuerySegment = Table.ExecuteQuerySegmentedAsync(operation, continuer).Result;
-                clubs.AddRange(tableQuerySegment.Results);
-                continuer = tableQuerySegment.ContinuationToken;
-            } while (continuer != null);
-
-            return clubs;
         }
     }
 }

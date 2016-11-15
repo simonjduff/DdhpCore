@@ -93,6 +93,8 @@ namespace LegacyDataImporter
             cfg.CreateMap<Stat, Models.Stat>()
                 .ForMember(stat => stat.AflClubId, config => config.MapFrom(oldStat => aflClubMaps[oldStat.AFLTeamId]))
                 .ForMember(stat => stat.PlayerId, config => config.MapFrom(oldStat => playerIdMaps[oldStat.PlayerId]));
+            cfg.CreateMap<PickedTeam, PlayedTeam>()
+                .ForMember(team => team.Team, config => config.Ignore());
         }
     }
 }

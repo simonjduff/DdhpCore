@@ -116,25 +116,32 @@ namespace LegacyDataImporter
 
             var clubs = importerFactory
                 .Importer<Team,Club>(ClubsTable)
+                .ClearTable()
                 .Import(dbContext.Teams);
             importerFactory
                 .Importer<LegacyRound, Round>(RoundsTable)
+                .ClearTable()
                 .Import(dbContext.Rounds);
             importerFactory
                 .Importer<AflTeam, AflClub>(AflClubsTable)
+                .ClearTable()
                 .Import(dbContext.AflTeams);
             importerFactory
                 .Importer<LegacyFixture, Fixture>(FixturesTable)
+                .ClearTable()
                 .Import(dbContext.Fixtures);
             var players = importerFactory
                 .Importer<LegacyPlayer, Player>(PlayersTable)
+                .ClearTable()
                 .Import(dbContext.Players.Include(q => q.CurrentAflTeam));
             importerFactory
                 .Importer<LegacyContract, Contract>(ContractsTable)
+                .ClearTable()
                 .Import(dbContext.Contracts);
             importerFactory
                 .Importer<RoundPlayer, PickedTeam>(PickedTeamsTable)
                 .Mapper(PickedTeamMapper(clubs, players))
+                .ClearTable()
                 .Import(dbContext.RoundPlayers
                     .Include(q => q.Player)
                     .Include(q => q.Contract) 
@@ -145,6 +152,7 @@ namespace LegacyDataImporter
             importerFactory
                 .Importer<LegacyStat, Stat>(StatsTable)
                 .LogStart(() => statRounds.First().Key.ToString())
+                .ClearTable()
                 .Import(statRounds.First().AsQueryable());
 
             foreach (var statRound in statRounds.Skip(1))
@@ -152,8 +160,13 @@ namespace LegacyDataImporter
                 importerFactory
                 .Importer<LegacyStat, Stat>(StatsTable)
                 .LogStart(() => statRound.Key.ToString())
-                .Import(statRound.AsQueryable(), false);
+                .Import(statRound.AsQueryable());
             }
+
+
+
+
+
             Console.WriteLine("SUCCESS");
         }
 

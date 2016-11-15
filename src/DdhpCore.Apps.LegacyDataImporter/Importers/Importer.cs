@@ -16,6 +16,7 @@ namespace LegacyDataImporter.Importers
         private readonly string _tableName;
         private Func<string> _logStart = () => string.Empty;
         private Func<string> _logEnd = () => string.Empty;
+        private bool _clearTable;
 
         public Importer(CloudTableClient tableClient, IMapper mapper, string tableName)
         {
@@ -57,7 +58,13 @@ namespace LegacyDataImporter.Importers
             return this;
         }
 
-        public IEnumerable<TTo> Import(IQueryable<TFrom> dbRoot, bool clearTable = true)
+        public Importer<TFrom, TTo> ClearTable()
+        {
+            _clearTable = true;
+            return this;
+        }
+
+        public IEnumerable<TTo> Import(IQueryable<TFrom> dbRoot)
         {
             Console.Write($"Importing {_tableName}...");
             var logStart = _logStart();
@@ -68,7 +75,7 @@ namespace LegacyDataImporter.Importers
             var writer = new TableWriter<TTo>(table);
             var mappedData = _mapperFunc(dbRoot);
 
-            if (clearTable)
+            if (_clearTable)
             {
                 writer.ClearTable();
             }
