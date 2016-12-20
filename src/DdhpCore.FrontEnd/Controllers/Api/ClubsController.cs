@@ -1,69 +1,52 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.Model;
+using DdhpCore.FrontEnd.Models.Api;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace DdhpCore.FrontEnd.Controllers.Api
 {
     [Route("api/[controller]")]
     public class ClubsController : Controller
     {
-        private readonly IAmazonDynamoDB _dynamoDb;
-
-        public ClubsController(IAmazonDynamoDB dynamoDb)
+        public ClubsController(CloudTableClient tableClient)
         {
-            _dynamoDb = dynamoDb;
+            _table = tableClient.GetTableReference(TableName);
         }
 
-        // GET: api/values
+        private readonly CloudTable _table;
+        private const string TableName = "clubs";
+
+        // GET: api/clubs
         [HttpGet]
-        public async Task<IEnumerable<string>> Get()
+        public async Task<IEnumerable<Club>> Get()
         {
-            try
+            var query = new TableQuery<Club>();
+            TableContinuationToken continuation = null;
+
+            var results = new List<Club>();
+
+            do
             {
-                var table = await _dynamoDb.DescribeTableAsync("test");
-            }
-            catch (ResourceNotFoundException)
-            {
-                return new string[] {"Result: ", "Table not found"};
-            }
+                var result = await _table.ExecuteQuerySegmentedAsync(query, continuation);
 
-            return new string[] { "value1", "value2" };
+                results.AddRange(result.Results);
+
+                continuation = result.ContinuationToken;
+            } while (continuation != null);
+
+            return results;
         }
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        // GET api/clubs/5
+        [HttpGet("{name}")]
+        public async Task<Club> Get(string name)
         {
-            return "value";
-        }
 
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody]string value)
-        {
-        }
+            var query = TableOperation.Retrieve<Club>("ALL_CLUBS", name);
+            var result = await _table.ExecuteAsync(query);
 
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
-
-        [HttpGet]
-        [Route("healthcheck")]
-        public JsonResult HealthCheck()
-        {
-            return Json(new {Result = "Ok"});
+            return result.Result as Club;
         }
     }
 }
