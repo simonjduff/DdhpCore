@@ -65,6 +65,10 @@ namespace LegacyDataImporter
                 Console.WriteLine("DEVELOPMENT");
                 configuration.AddUserSecrets();
             }
+            else
+            {
+                configuration.AddEnvironmentVariables();
+            }
 
             Configuration = configuration.Build();
 
