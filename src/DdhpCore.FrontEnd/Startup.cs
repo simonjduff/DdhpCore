@@ -53,7 +53,7 @@ namespace DdhpCore.FrontEnd
             IApplicationLifetime applicationLifetime)
         {
             loggerFactory.AddConsole();
-
+            loggerFactory.AddAzureWebAppDiagnostics();
             var logger = loggerFactory.CreateLogger<Startup>();
             logger.LogDebug("Configuration begin");
 

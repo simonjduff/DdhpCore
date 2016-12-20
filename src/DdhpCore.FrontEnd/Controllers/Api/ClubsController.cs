@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using DdhpCore.FrontEnd.Extensions;
 using DdhpCore.FrontEnd.Models.Api;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace DdhpCore.FrontEnd.Controllers.Api
@@ -9,33 +12,32 @@ namespace DdhpCore.FrontEnd.Controllers.Api
     [Route("api/[controller]")]
     public class ClubsController : Controller
     {
-        public ClubsController(CloudTableClient tableClient)
+        public ClubsController(CloudTableClient tableClient,
+            ILoggerFactory loggerFactory)
         {
             _table = tableClient.GetTableReference(TableName);
+            _logger = loggerFactory.CreateLogger<ClubsController>();
         }
 
         private readonly CloudTable _table;
+        private readonly ILogger<ClubsController> _logger;
         private const string TableName = "clubs";
 
         // GET: api/clubs
         [HttpGet]
         public async Task<IEnumerable<Club>> Get()
         {
-            var query = new TableQuery<Club>();
-            TableContinuationToken continuation = null;
-
-            var results = new List<Club>();
-
-            do
+            try
             {
-                var result = await _table.ExecuteQuerySegmentedAsync(query, continuation);
+                var query = new TableQuery<Club>();
 
-                results.AddRange(result.Results);
-
-                continuation = result.ContinuationToken;
-            } while (continuation != null);
-
-            return results;
+                return await query.BatchQuery<Club>(_table);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError((int)LogEventId.TableStorageQueryFailure, ex, "Failure getting clubs from storage");
+                throw;
+            }
         }
 
         // GET api/clubs/5
