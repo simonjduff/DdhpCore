@@ -1,7 +1,4 @@
-﻿using System;
-using Amazon.DynamoDBv2;
-using DdhpCore.FrontEnd.Configuration;
-using DdhpCore.Micros.Runner;
+﻿using DdhpCore.FrontEnd.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
@@ -11,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
+using System.Diagnostics;
 
 namespace DdhpCore.FrontEnd
 {
@@ -49,9 +47,15 @@ namespace DdhpCore.FrontEnd
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IApplicationLifetime applicationLifetime)
+        public void Configure(IApplicationBuilder app, 
+            IHostingEnvironment env, 
+            ILoggerFactory loggerFactory, 
+            IApplicationLifetime applicationLifetime)
         {
             loggerFactory.AddConsole();
+
+            var logger = loggerFactory.CreateLogger<Startup>();
+            logger.LogDebug("Configuration begin");
 
             if (env.IsDevelopment())
             {
