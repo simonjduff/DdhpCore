@@ -17,6 +17,7 @@ using Player = LegacyDataImporter.Models.Player;
 using Round = LegacyDataImporter.Models.Round;
 using Stat = LegacyDataImporter.Models.Stat;
 using System.Linq;
+using System.Linq.Expressions;
 using LegacyDataImporter.Models;
 
 namespace LegacyDataImporter
@@ -76,11 +77,12 @@ namespace LegacyDataImporter
         {
             get
             {
-                Console.Write("Building map...");
                 if (_mapper != null)
                 {
                     return _mapper;
                 }
+
+                Console.Write("Building map...");
 
                 var config = new MapperConfiguration(ClassMaps.BuildMaps);
 
@@ -95,6 +97,7 @@ namespace LegacyDataImporter
         const string PlayersTable = "players";
         const string ContractsTable = "contracts";
         const string PickedTeamsTable = "pickedTeams";
+        const string PlayedTeamsTable = "playedTeams";
         const string FixturesTable = "fixtures";
         const string AflClubsTable = "aflclubs";
         const string StatsTable = "stats";
@@ -139,6 +142,25 @@ namespace LegacyDataImporter
                     .Include(q => q.Player)
                     .Include(q => q.Contract) 
                     .Include(q => q.Round));
+
+            var roundPlayers = from rp in dbContext.RoundPlayers
+                join stat in dbContext.Stats
+                on new {Round = rp.RoundId, PlayerId = rp.PlayerId}
+                equals new {Round = stat.Round, PlayerId = stat.PlayerId}
+                select new {RoundPlayer = rp, Stat = stat};
+
+            foreach (var rp in roundPlayers.ToList())
+            {
+                rp.RoundPlayer.Stat = rp.Stat;
+            }
+
+           importerFactory
+               .Importer<RoundPlayer, PlayedTeam>(PlayedTeamsTable)
+               .Mapper(PlayedTeamMapper(clubs, players))
+               .Import(roundPlayers.Select(q => q.RoundPlayer).AsQueryable()
+                   .Include(q => q.Player)
+                   .Include(q => q.Contract)
+                   .Include(q => q.Round));
 
             var statRounds = dbContext.Stats.GroupBy(q => q.Round);
 
@@ -196,6 +218,73 @@ namespace LegacyDataImporter
                 }
                 return result;
             };
+        }
+
+        private Func<IQueryable<RoundPlayer>,IEnumerable<PlayedTeam>> PlayedTeamMapper(IEnumerable<Club> clubs, IEnumerable<Player> players)
+        {
+            var clubsDictionary = clubs.ToDictionary(q => q.LegacyId);
+            var playersDictionary = players.ToDictionary(q => q.LegacyId);
+
+            return (roundPlayers) =>
+            {
+                var result = new List<PlayedTeam>();
+
+                var roundData = roundPlayers.GroupBy(q => q.RoundId);
+                foreach (var round in roundData)
+                {
+                    var teamData = round.GroupBy(q => q.Contract.TeamId);
+
+                    foreach (var team in teamData)
+                    {
+                        var teamPlayers = new List<PlayedTeam.TeamPlayer>();
+
+                        var pickedTeam = new PlayedTeam
+                        {
+                            Round = round.Key,
+                            ClubId = clubsDictionary[team.Key].Id,
+                            Id = Guid.NewGuid(),
+                            Team = new List<PlayedTeam.TeamPlayer>()
+                        };
+                        teamPlayers.AddRange(
+                            team.Select(
+                                q =>
+                                    new PlayedTeam.TeamPlayer
+                                    {
+                                        PickedPosition = q.PickedPosition.Single(),
+                                        PlayerId = playersDictionary[q.PlayerId].Id,
+                                        PlayedPosition = q.PlayedPosition.SingleOrDefault(),
+                                        Stat = Mapper.Map<LegacyStat, Stat>(q.Stat),
+                                        Score = GetScore(q.PlayedPosition.SingleOrDefault(), Mapper.Map<LegacyStat, Stat>(q.Stat))
+                                    }));
+                        pickedTeam.Team = teamPlayers;
+                        pickedTeam.Score = pickedTeam.Team.Sum(q => q.Score);
+                        result.Add(pickedTeam);
+                    }
+                }
+                return result;
+            };
+        }
+
+        private int GetScore(char? playedPosition, Stat stat)
+        {
+            if (!playedPosition.HasValue)
+            {
+                return 0;
+            }
+
+            switch (playedPosition)
+            {
+                case 'f':
+                    return stat.Goals*6 + stat.Behinds;
+                case 'm':
+                    return stat.Disposals;
+                case 'r':
+                    return stat.Marks + stat.Hitouts;
+                case 't':
+                    return stat.Tackles*6;
+                default:
+                    return 0;
+            }
         }
     }
 }

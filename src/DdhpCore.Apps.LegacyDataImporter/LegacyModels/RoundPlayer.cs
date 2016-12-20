@@ -14,5 +14,13 @@ namespace LegacyDataImporter.LegacyModels
         public virtual Round Round { get; set; }
         public int PlayerId { get; set; }
         public virtual Player Player { get; set; }
+        [NotMapped]
+        public Stat Stat { get; set; }
+
+        public RoundPlayer EnrichWithStat(Stat stat)
+        {
+            Stat = stat;
+            return this;
+        }
     }
 }
