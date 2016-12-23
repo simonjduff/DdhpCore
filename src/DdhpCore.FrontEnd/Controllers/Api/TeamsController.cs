@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using DdhpCore.FrontEnd.Extensions;
 using DdhpCore.FrontEnd.Models.Api;
@@ -27,7 +25,7 @@ namespace DdhpCore.FrontEnd.Controllers.Api
         [HttpGet("{round}/{clubId}")]
         public async Task<IActionResult> Get(int round, Guid clubId)
         {
-            var query = TableOperation.Retrieve<PlayedTeam>(round.ToString(), clubId.ToString());
+            var query = TableOperation.Retrieve<DdhpCore.Storage.Models.PlayedTeam>(round.ToString(), clubId.ToString());
             var result = await _table.ExecuteAsync(query);
 
             return result.ToActionResult(this);
@@ -37,11 +35,11 @@ namespace DdhpCore.FrontEnd.Controllers.Api
         public async Task<IActionResult> Get(int round)
         {
             var query =
-                new TableQuery<PlayedTeam>().Where(TableQuery.GenerateFilterCondition("PartitionKey",
+                new TableQuery<DdhpCore.Storage.Models.PlayedTeam>().Where(TableQuery.GenerateFilterCondition("PartitionKey",
                     QueryComparisons.Equal, round.ToString()));
 
             TableContinuationToken continuation = null;
-            var results = new List<PlayedTeam>(12);
+            var results = new List<DdhpCore.Storage.Models.PlayedTeam>(12);
 
             do
             {

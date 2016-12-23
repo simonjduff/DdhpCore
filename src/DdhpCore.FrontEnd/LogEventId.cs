@@ -2,6 +2,7 @@
 {
     public enum LogEventId
     {
-        TableStorageQueryFailure = 0
+        TableStorageQueryFailure = 0,
+        AutoMapperFailure = 1
     }
 }

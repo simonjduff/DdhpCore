@@ -1,4 +1,7 @@
-﻿using DdhpCore.FrontEnd.Configuration;
+﻿using System;
+using AutoMapper;
+using DdhpCore.FrontEnd.Configuration;
+using DdhpCore.Storage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
@@ -8,7 +11,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
-using System.Diagnostics;
+using Newtonsoft.Json;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace DdhpCore.FrontEnd
 {
@@ -38,12 +42,20 @@ namespace DdhpCore.FrontEnd
         {
             services.AddOptions();
             services.Configure<DataOptions>(Configuration);
+            services.Configure<ApiOptions>(Configuration);
             services.AddMvc();
             services.AddSingleton<CloudStorageAccount>(
                 provider =>
                         CloudStorageAccount.Parse(provider.GetService<IOptions<DataOptions>>().Value.StorageConnectionString));
             services.AddScoped<CloudTableClient>(
                 provider => provider.GetService<CloudStorageAccount>().CreateCloudTableClient());
+            services.AddSingleton<IMapper>(builder =>
+            {
+                var config = new MapperConfiguration(ClassMaps.BuildMaps);
+                var mapper = config.CreateMapper();
+                return mapper;
+            });
+            services.AddScoped<IStorageFacade, StorageFacade>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -52,15 +64,23 @@ namespace DdhpCore.FrontEnd
             ILoggerFactory loggerFactory, 
             IApplicationLifetime applicationLifetime)
         {
-            loggerFactory.AddConsole();
+            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddAzureWebAppDiagnostics();
+
+            if (env.IsDevelopment())
+            {
+                loggerFactory.AddDebug();
+            }
+
             var logger = loggerFactory.CreateLogger<Startup>();
-            logger.LogDebug("Configuration begin");
+            logger.LogDebug("Configuration starting");
 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseStaticFiles();
 
             //var worker = new MicrosRunner();
             //applicationLifetime.ApplicationStopping.Register(worker.StopApplication);
