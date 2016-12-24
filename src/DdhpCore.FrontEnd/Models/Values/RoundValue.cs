@@ -18,9 +18,14 @@ namespace DdhpCore.FrontEnd.Models.Values
             }
 
             _round = round;
+            Year = year;
+            RoundNumber = roundNumber;
         }
 
         private readonly int _round;
+        public int RoundNumber { get; }
+        public int Year { get; }
+
 
         public static implicit operator RoundValue(int round)
         {

@@ -14,6 +14,7 @@ namespace DdhpCore.FrontEnd.Configuration
             cfg.CreateMap<Storage.Models.PlayedTeam, PlayedTeam>();
             cfg.CreateMap<Storage.Models.PlayedTeam.TeamPlayer, PlayedTeam.TeamPlayer>();
             cfg.CreateMap<Storage.Models.Stat, Stat>();
+            cfg.CreateMap<Storage.Models.Round, Round>();
         }
     }
 }
