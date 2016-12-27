@@ -1,4 +1,6 @@
-﻿namespace DdhpCore.FrontEnd.Models.Api
+﻿using System.Collections.Generic;
+
+namespace DdhpCore.FrontEnd.Models.Api
 {
     public class Round
     {
@@ -7,5 +9,6 @@
         public int RoundNumber { get; set; }
         public bool RoundComplete { get; set; }
         public int NormalRound { get; set; }
+        public IEnumerable<Fixture> Fixtures { get; set; }
     }
 }

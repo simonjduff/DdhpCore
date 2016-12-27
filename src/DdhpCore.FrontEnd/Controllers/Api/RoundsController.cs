@@ -7,8 +7,6 @@ using DdhpCore.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-// For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace DdhpCore.FrontEnd.Controllers.Api
 {
     [Route("api/[controller]")]
@@ -41,6 +39,9 @@ namespace DdhpCore.FrontEnd.Controllers.Api
             RoundValue roundId = id;
 
             var round = await _storage.Retrieve<Storage.Models.Round>(roundId.Year.ToString(), roundId.RoundNumber.ToString());
+
+            var fixtures = await _storage.GetAllByPartition<Storage.Models.Fixture>(roundId.ToString());
+            var mappedFixtures = _mapper.Map<IEnumerable<Storage.Models.Fixture>, IEnumerable<Fixture>>(fixtures);
 
             return Ok(_mapper.Map<Storage.Models.Round, Round>(round));
         }

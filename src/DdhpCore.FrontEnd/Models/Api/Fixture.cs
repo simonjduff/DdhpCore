@@ -8,5 +8,7 @@ namespace DdhpCore.FrontEnd.Models.Api
         public Guid Home { get; set; }
 
         public Guid Away { get; set; }
+        public PlayedTeam HomeTeam { get; set; }
+        public PlayedTeam AwayTeam { get; set; }
     }
 }
