@@ -6,13 +6,13 @@ namespace DdhpCore.EventSource.Events
 {
     public class Event : TableEntity
     {
-        public Event(Guid entityId,
+        public Event(string entityId,
             int entityVersion,
             string eventType,
             object payload)
         {
             RowKey = entityVersion.ToString("0000000000");
-            PartitionKey = entityId.ToString();
+            PartitionKey = entityId;
             EventType = eventType;
             SetPayload(payload);
         }
