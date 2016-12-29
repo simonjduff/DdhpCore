@@ -1,4 +1,5 @@
-﻿using DdhpCore.EventSource.Models;
+﻿using System;
+using DdhpCore.EventSource.Models;
 
 namespace DdhpCore.EventSource.Tests
 {
@@ -28,7 +29,7 @@ namespace DdhpCore.EventSource.Tests
         }
 
         [Fact]
-        public async Task RoundCreatedEventAddsRound()
+        public async Task RoundAddedEventAddsRound()
         {
             // Given an entity factory
             GivenAnEntityFactory();
@@ -47,6 +48,43 @@ namespace DdhpCore.EventSource.Tests
             Assert.Equal(1, season.Rounds.First().RoundNumber);
             Assert.Equal(true, season.Rounds.First().LadderRound);
             Assert.Equal(false, season.Rounds.First().Completed);
+        }
+
+        [Fact]
+        public async Task FixtureAddedEventAddsFixtureToRound()
+        {
+            // Given an entity factory
+            GivenAnEntityFactory();
+
+            // And a SeasonCreatedEvent
+            CreateSeason();
+
+            // And a RoundCreatedEvent
+            var roundNumber = 1;
+            CreateRound(roundNumber);
+
+            // And a FixtureAddedEvent
+            Guid homeClub = Guid.NewGuid();
+            Guid awayClub = Guid.NewGuid();
+            CreateFixture(roundNumber, homeClub, awayClub);
+
+            // When asked for a season
+            Season season = await EventEntityFactory.ReplayEntity<Season>(EntityId.ToString());
+
+            // Then the fixture is in the round
+            var round = season.Rounds.Single(q => q.RoundNumber == roundNumber);
+            Assert.Equal(1, round.Fixtures.Count());
+            Assert.Equal(homeClub, round.Fixtures.First().HomeClub);
+            Assert.Equal(awayClub, round.Fixtures.First().AwayClub);
+        }
+
+        private void CreateFixture(int roundNumber,
+            Guid homeClub, 
+            Guid awayClub)
+        {
+            FixtureAddedEvent fEvent = new FixtureAddedEvent(roundNumber, homeClub, awayClub);
+            Event fixtureEvent = new Event(EntityId.ToString(), EntityVersion++, "FixtureAdded", fEvent);
+            Events.Add(fixtureEvent);
         }
 
         private void CreateSeason()
