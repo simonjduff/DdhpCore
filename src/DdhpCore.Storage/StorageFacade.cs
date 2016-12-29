@@ -24,11 +24,18 @@ namespace DdhpCore.Storage
 
         public async Task<IEnumerable<T>> BatchQuery<T>(TableQuery<T> query) where T : ITableEntity, new()
         {
+            var tableName = TableName(typeof(T));
+
+            return await BatchQuery(query, tableName);
+        }
+
+        public async Task<IEnumerable<T>> BatchQuery<T>(TableQuery<T> query, string tableName) where T : ITableEntity, new()
+        {
             TableContinuationToken continuation = null;
 
             var results = new List<T>();
 
-            var table = _tableClient.GetTableReference(TableName(typeof(T)));
+            var table = _tableClient.GetTableReference(tableName);
 
             do
             {
@@ -51,11 +58,16 @@ namespace DdhpCore.Storage
 
         public async Task<IEnumerable<T>> GetAllByPartition<T>(string partitionValue) where T : class, ITableEntity, new()
         {
+            return await GetAllByPartition<T>(partitionValue, TableName(typeof(T)));
+        }
+
+        public async Task<IEnumerable<T>> GetAllByPartition<T>(string partitionValue, string tableName) where T : class, ITableEntity, new()
+        {
             var query = new TableQuery<T>()
                 .Where(TableQuery.GenerateFilterCondition(PartitionKey,
                     QueryComparisons.Equal, partitionValue));
 
-            return await BatchQuery(query);
+            return await BatchQuery(query, tableName);
         }
 
         public async Task<IEnumerable<T>> GetRowsInPartition<T>(string partitionValue, IEnumerable<string> rowKeys)
