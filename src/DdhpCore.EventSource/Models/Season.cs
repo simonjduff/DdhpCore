@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using DdhpCore.EventSource.Events;
 
 namespace DdhpCore.EventSource.Models
@@ -29,6 +30,20 @@ namespace DdhpCore.EventSource.Models
                         Completed = roundAdded.Completed
                     });
                     return;
+                case SeasonEvent.FixtureAdded:
+                    var fixtureAdded = e.GetPayload<FixtureAddedEvent>();
+                    var round = Rounds.SingleOrDefault(q => q.RoundNumber == fixtureAdded.RoundNumber);
+                    if (round == null)
+                    {
+                        throw new Exception($"Cannot find round {fixtureAdded.RoundNumber} in season {Id}");
+                    }
+
+                    round.Fixtures.Add(new Fixture
+                    {
+                        HomeClub = fixtureAdded.HomeClub,
+                        AwayClub = fixtureAdded.AwayClub
+                    });
+                    return;
             }
         }
 
@@ -39,14 +54,8 @@ namespace DdhpCore.EventSource.Models
         private enum SeasonEvent
         {
             SeasonCreated,
-            RoundAdded
+            RoundAdded,
+            FixtureAdded
         }
-    }
-
-    public class Round
-    {
-        public int RoundNumber { get; set; }
-        public bool LadderRound { get; set; }
-        public bool Completed { get; set; }
     }
 }
