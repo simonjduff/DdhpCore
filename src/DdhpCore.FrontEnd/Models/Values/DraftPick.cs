@@ -29,6 +29,11 @@ namespace DdhpCore.FrontEnd.Models.Values
             return pick._pick;
         }
 
+        public static implicit operator DraftPick(Int64 pick)
+        {
+            return new DraftPick((int)pick);
+        }
+
         public override string ToString()
         {
             return _pick.ToString();

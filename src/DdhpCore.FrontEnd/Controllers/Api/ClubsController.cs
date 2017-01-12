@@ -29,14 +29,14 @@ namespace DdhpCore.FrontEnd.Controllers.Api
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Club>> Get()
+        public async Task<IEnumerable<ClubSeason>> Get()
         {
             try
             {
-                var query = new TableQuery<Storage.Models.Club>();
+                var query = new TableQuery<ClubSeason>();
 
                 var clubs = await _storage.BatchQuery(query);
-                return _mapper.Map<IEnumerable<Storage.Models.Club>, IEnumerable<Club>>(clubs);
+                return clubs;
             }
             catch (Exception ex)
             {
@@ -53,43 +53,12 @@ namespace DdhpCore.FrontEnd.Controllers.Api
             return _mapper.Map<Storage.Models.Club, Club>(club);
         }
 
-        [HttpGet("{name}/{round}")]
-        public async Task<IActionResult> Get(string name, int round)
+        [HttpGet("{year}/{name}")]
+        public async Task<IActionResult> Get(int year, string name)
         {
-            RoundValue roundValue = round;
+            var club = await _storage.Retrieve<ClubSeason>(year.ToString(), name);
 
-            var club = await _storage.Retrieve<Storage.Models.Club>("ALL_CLUBS", name);
-            var mapped = _mapper.Map<Storage.Models.Club, Club>(club);
-
-            var contracts = await _storage.GetAllByPartition<Storage.Models.Contract>(club.Id.ToString());
-            var filteredContracts = contracts.Where(q => q.FromRound <= roundValue && q.ToRound >= roundValue);
-            var mappedContracts =
-                _mapper.Map<IEnumerable<Storage.Models.Contract>, IEnumerable<Contract>>(filteredContracts);
-
-            var playerIdGroups = filteredContracts.Select(c => c.PlayerId.ToString()).GroupBy(g => g.ToString().Substring(0, 1));
-
-            var players = new List<Storage.Models.Player>();
-            foreach (var group in playerIdGroups)
-            {
-                players.AddRange(await _storage.GetRowsInPartition<Storage.Models.Player>(group.Key, group));
-            }
-
-            var mappedPlayers = _mapper.Map<IEnumerable<Storage.Models.Player>, IEnumerable<Player>>(players).ToDictionary(q => q.Id);
-            foreach (var contract in mappedContracts)
-            {
-                contract.Player = mappedPlayers[contract.PlayerId];
-            }
-
-            var playedTeam = await _storage.Retrieve<Storage.Models.PlayedTeam>(roundValue.ToString(), club.Id.ToString());
-
-            mapped.ClubAtRound = new ClubAtRound
-            {
-                Contracts = mappedContracts,
-                Round = roundValue,
-                Team = _mapper.Map<Storage.Models.PlayedTeam, PlayedTeam>(playedTeam)
-            };
-
-            return new ObjectResult(mapped);
+            return new ObjectResult(club);
         }
     }
 }

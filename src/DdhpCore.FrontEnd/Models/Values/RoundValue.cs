@@ -27,6 +27,11 @@ namespace DdhpCore.FrontEnd.Models.Values
             return new RoundValue(round);
         }
 
+        public static implicit operator RoundValue(Int64 round)
+        {
+            return new RoundValue((int)round);
+        }
+
         public static implicit operator int(RoundValue round)
         {
             return round._round;
