@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using DdhpCore.FrontEnd.Models.Api;
-using DdhpCore.FrontEnd.Models.Values;
 using DdhpCore.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -43,14 +41,6 @@ namespace DdhpCore.FrontEnd.Controllers.Api
                 _logger.LogError((int)LogEventId.TableStorageQueryFailure, ex, "Failure getting clubs from storage");
                 throw;
             }
-        }
-
-        [HttpGet("{name}")]
-        public async Task<Club> Get(string name)
-        {
-            var club = await _storage.Retrieve<Storage.Models.Club>("ALL_CLUBS", name);
-
-            return _mapper.Map<Storage.Models.Club, Club>(club);
         }
 
         [HttpGet("{year}/{name}")]
