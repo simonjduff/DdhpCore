@@ -7,10 +7,10 @@
     "System.Runtime.Serialization.Primitives": "4.3.0",
     "xunit": "2.1.0",
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
-    "WindowsAzure.Storage": "8.0.0",
     "DdhpCore.Storage": "1.0.0-*",
     "NSubstitute": "2.0.1-rc",
-    "DdhpCore.EventSource": "1.0.0-*"
+    "DdhpCore.EventSource": "1.0.0-*",
+    "WindowsAzure.Storage": "8.0.1"
   },
   "testRunner": "xunit",
   "frameworks": {

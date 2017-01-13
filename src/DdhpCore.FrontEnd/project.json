@@ -9,7 +9,6 @@
     "Microsoft.AspNetCore.Mvc": "1.1.0",
     "Microsoft.AspNetCore.Razor.Tools": "1.1.0-preview4-final",
     "Microsoft.Extensions.Logging": "1.1.0",
-    "WindowsAzure.Storage": "7.2.1",
     "Microsoft.Extensions.Logging.AzureAppServices": "1.0.0",
     "Microsoft.AspNet.WebApi.Client": "5.2.3",
     "Microsoft.AspNetCore.Server.IISIntegration": "1.1.0",
@@ -28,7 +27,8 @@
     "System.Runtime.Serialization.Xml": "4.3.0",
     "AutoMapper": "5.2.0",
     "DdhpCore.Storage": "1.0.0",
-    "Microsoft.EntityFrameworkCore.Tools.DotNet": "1.1.0-preview4-final" 
+    "Microsoft.EntityFrameworkCore.Tools.DotNet": "1.1.0-preview4-final",
+    "WindowsAzure.Storage": "8.0.1" 
   },
   "frameworks": {
     "netcoreapp1.0": {

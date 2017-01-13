@@ -5,7 +5,7 @@
   },
   "dependencies": {
     "DdhpCore.Storage": "1.0.0-*",
-    "WindowsAzure.Storage": "8.0.0"
+    "WindowsAzure.Storage": "8.0.1"
   },
   "frameworks": {
     "netcoreapp1.0": {
