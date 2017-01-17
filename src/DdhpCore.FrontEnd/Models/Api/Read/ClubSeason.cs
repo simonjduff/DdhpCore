@@ -1,14 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using DdhpCore.Storage;
+using Microsoft.DotNet.Cli.Utils;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
 
-namespace DdhpCore.FrontEnd.Models.Api
+namespace DdhpCore.FrontEnd.Models.Api.Read
 {
     [TableName("clubsRead")]
-    public class ClubSeason : TableEntity
+    public class ClubSeason : ComplexEntity
     {
+        public ClubSeason()
+        {
+            Contracts = Enumerable.Empty<Contract>();
+        }
+
         private Guid _id;
         public Guid Id
         {
@@ -35,13 +42,8 @@ namespace DdhpCore.FrontEnd.Models.Api
             }
         }
 
-        private List<Storage.Models.Contract> _contracts = new List<Storage.Models.Contract>();
-
-        public string Contracts
-        {
-            get { return JsonConvert.SerializeObject(_contracts); }
-            set { _contracts = (List<Storage.Models.Contract>)JsonConvert.DeserializeObject<List<Storage.Models.Contract>>(value); }
-        }
+        [Serialize]
+        public IEnumerable<Contract> Contracts { get; set; }
 
         public int Version { get; set; }
     }

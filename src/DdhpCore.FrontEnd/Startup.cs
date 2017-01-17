@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Net.Http;
 using AutoMapper;
 using DdhpCore.FrontEnd.Configuration;
 using DdhpCore.Storage;
@@ -11,8 +11,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
-using Newtonsoft.Json;
-using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace DdhpCore.FrontEnd
 {
@@ -56,6 +54,7 @@ namespace DdhpCore.FrontEnd
                 return mapper;
             });
             services.AddScoped<IStorageFacade, StorageFacade>();
+            services.AddTransient<HttpClient>((factory) => new HttpClient(new HttpClientHandler()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -81,10 +80,6 @@ namespace DdhpCore.FrontEnd
             }
 
             app.UseStaticFiles();
-
-            //var worker = new MicrosRunner();
-            //applicationLifetime.ApplicationStopping.Register(worker.StopApplication);
-            //worker.Run();
 
             app.UseMvc(BuildRoutes);
         }

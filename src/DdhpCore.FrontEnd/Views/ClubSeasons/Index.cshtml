@@ -1,0 +1,30 @@
+﻿@model DdhpCore.FrontEnd.Models.Api.Read.ClubSeason
+
+@{
+    ViewBag.Title = "DDHP";
+    Layout = "_Layout";
+}
+
+<div class="jumbotron">
+    <h2>@Model.Year @Model.ClubName</h2>
+</div>
+
+<div>
+    <h3>Roster</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>DraftPick</th><th>Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var contract in Model.Contracts.OrderBy(c => c.DraftPick))
+        {
+            <tr>
+                <td>@contract.DraftPick</td>
+                <td>@contract.Player.Name</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
