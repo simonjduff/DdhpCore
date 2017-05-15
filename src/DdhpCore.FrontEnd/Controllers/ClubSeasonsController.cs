@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Net;
 using System.Net.Http;
-using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using DdhpCore.FrontEnd.Models.Api.Read;
 using DdhpCore.FrontEnd.Models.Values;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using DdhpCore.FrontEnd.Extensions;
+using DdhpCore.FrontEnd.Models.Api.Read;
+using DdhpCore.FrontEnd.Models.Storage;
 
 namespace DdhpCore.FrontEnd.Controllers
 {
@@ -29,14 +28,15 @@ namespace DdhpCore.FrontEnd.Controllers
         [Route("{year}/{name}")]
         public async Task<IActionResult> Index(int year, string name)
         {
-            var response = await _httpClient.ApiBaseAddress(Request).GetAsync($"clubs/{(Year)year}/{Uri.EscapeUriString(name)}");
+            var client = new HttpClient();
+            client.BaseAddress = new Uri($"{Request.Scheme}://{Request.Host}");
 
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new Exception($"Failed {response.ReasonPhrase}");
-            }
+            var clubResponse = await client.GetStringAsync($"/api/clubs/{name}");
+            var club = JsonConvert.DeserializeObject<ClubApi>(clubResponse);
 
-            var deserialized = JsonConvert.DeserializeObject<ClubSeason>(await response.Content.ReadAsStringAsync());
+            var clubSeasonResponse = await client.GetStringAsync($"/api/clubs/{year}/{club.Id}");
+
+            var deserialized = JsonConvert.DeserializeObject<ClubSeasonApi>(clubSeasonResponse);
 
             return View(deserialized);
         }

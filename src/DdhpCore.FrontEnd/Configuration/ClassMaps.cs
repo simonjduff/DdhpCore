@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using DdhpCore.FrontEnd.Models.Api;
+using DdhpCore.FrontEnd.Models.Api.Read;
+using DdhpCore.FrontEnd.Models.Storage;
 
 namespace DdhpCore.FrontEnd.Configuration
 {
@@ -7,13 +9,12 @@ namespace DdhpCore.FrontEnd.Configuration
     {
         public static void BuildMaps(IMapperConfigurationExpression cfg)
         {
-            //cfg.CreateMap<Storage.Models.Club, Club>();
-            //cfg.CreateMap<Storage.Models.Fixture, Fixture>();
-            //cfg.CreateMap<Storage.Models.Contract, Contract>();
-            //cfg.CreateMap<Storage.Models.Player, Player>();
-            //cfg.CreateMap<Storage.Models.PlayedTeam, PlayedTeam>();
-            //cfg.CreateMap<Storage.Models.PlayedTeam.TeamPlayer, PlayedTeam.TeamPlayer>();
-            //cfg.CreateMap<Storage.Models.Stat, Stat>();
+            cfg.CreateMap<Club, ClubApi>()
+                .ForMember(dest => dest.ClubName, opt => opt.MapFrom(source => source.Details.ClubName))
+                .ForMember(dest => dest.CoachName, opt => opt.MapFrom(source => source.Details.CoachName));
+            cfg.CreateMap<ClubSeason, ClubSeasonApi>()
+                .ForMember(dest => dest.ClubId, opt => opt.MapFrom(source => source.Id));
+            cfg.CreateMap<Contract, ClubSeasonApi.Contract>();
         }
     }
 }

@@ -64,7 +64,7 @@ namespace DdhpCore.FrontEnd
             IApplicationLifetime applicationLifetime)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddAzureWebAppDiagnostics();
+            //loggerFactory.AddAzureWebAppDiagnostics();
 
             if (env.IsDevelopment())
             {

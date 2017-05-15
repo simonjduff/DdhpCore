@@ -102,6 +102,11 @@ namespace DdhpCore.Storage
             return results;
         }
 
+        public async Task<IEnumerable<T>> GetAllRows<T>() where T: class, ITableEntity, new()
+        {
+            return await BatchQuery<T>(new TableQuery<T>(), TableName(typeof(T)));
+        }
+
         private string TableName(Type type)
         {
             var info = type.GetTypeInfo();

@@ -36,3 +36,8 @@ textarea {
     display: none
   }
 }
+
+.stats {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}

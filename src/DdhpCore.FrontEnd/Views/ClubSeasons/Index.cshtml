@@ -1,4 +1,5 @@
-﻿@model DdhpCore.FrontEnd.Models.Api.Read.ClubSeason
+﻿@using DdhpCore.FrontEnd.Models.Api.Read
+@model ClubSeasonApi
 
 @{
     ViewBag.Title = "DDHP";
@@ -11,11 +12,11 @@
 
 <div>
     <h3>Roster</h3>
-    <table>
+    <table class="table">
         <thead>
         <tr>
             <th>DraftPick</th><th>Name</th>
-            @for (int i = 0; i < 24; i++)
+            @for (int i = 1; i <= 24; i++)
             {
                 <th>@i.ToString("00")</th>
             }
@@ -26,13 +27,13 @@
         {
             <tr>
                 <td>@contract.DraftPick</td>
-                <td>@contract.Player.Name</td>
+                <td>@contract.PlayerName</td>
                 @{
-                    var statsDict = contract.Stats.ToDictionary(q => q.RoundNumber);
+                    var statsDict = contract.Stats;
                 }
-                @for (int i = 0; i < 24; i++)
+                @for (int i = 1; i <= 24; i++)
                 {
-                    <td>@statsDict.ContainsKey(i) ? statsDict[i] : string.Empty</td>
+                    <td class="stats">@(statsDict.ContainsKey(i) ? statsDict[i]['f'].ToString() : "-")</td>
                 }
             </tr>
         }

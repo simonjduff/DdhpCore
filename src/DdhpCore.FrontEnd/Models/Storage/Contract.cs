@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace DdhpCore.FrontEnd.Models.Api.Read
+namespace DdhpCore.FrontEnd.Models.Storage
 {
     public class Contract
     {
@@ -21,7 +20,7 @@ namespace DdhpCore.FrontEnd.Models.Api.Read
         public int FromRound { get; set; }
         public int ToRound { get; set; }
         public int DraftPick { get; set; }
-        public Player Player { get; set; }
-        public IEnumerable<Stat> Stats { get; set; }
+        public string PlayerName { get; set; }
+        public IDictionary<int, IDictionary<char, int>> Stats { get; set; }
     }
 }
