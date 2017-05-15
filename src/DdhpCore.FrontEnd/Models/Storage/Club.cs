@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using DdhpCore.Storage;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
 
-namespace DdhpCore.FrontEnd.Models.Api.Read
+namespace DdhpCore.FrontEnd.Models.Storage
 {
     [TableName("ClubsRead")]
     public class Club : TableEntity

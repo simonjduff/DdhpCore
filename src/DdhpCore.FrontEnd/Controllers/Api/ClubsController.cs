@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using DdhpCore.FrontEnd.Models.Api.Read;
+using DdhpCore.FrontEnd.Models.Storage;
 using DdhpCore.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -41,7 +43,7 @@ namespace DdhpCore.FrontEnd.Controllers.Api
         {
             var clubs = await _storage.GetAllRows<Club>();
 
-            return new ObjectResult(clubs);
+            return new ObjectResult(_mapper.Map<IEnumerable<Club>, IEnumerable<ClubApi>>(clubs));
         }
     }
 }
