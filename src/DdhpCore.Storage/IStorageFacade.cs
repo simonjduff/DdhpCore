@@ -12,5 +12,6 @@ namespace DdhpCore.Storage
         Task<IEnumerable<T>> GetAllByPartition<T>(string partitionValue) where T : class, ITableEntity, new();
         Task<IEnumerable<T>> GetAllByPartition<T>(string partitionValue, string tableName) where T : class, ITableEntity, new();
         Task<IEnumerable<T>> GetRowsInPartition<T>(string partitionValue, IEnumerable<string> rowKeys) where T : class, ITableEntity, new();
+        Task<IEnumerable<T>> GetAllRows<T>() where T : class, ITableEntity, new();
     }
 }

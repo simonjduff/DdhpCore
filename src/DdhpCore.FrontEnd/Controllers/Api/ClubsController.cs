@@ -23,10 +23,10 @@ namespace DdhpCore.FrontEnd.Controllers.Api
             _logger = loggerFactory.CreateLogger<ClubsController>();
         }
 
-        [HttpGet("{year}/{name}")]
-        public async Task<IActionResult> Get(int year, string name)
+        [HttpGet("{year}/{clubId}")]
+        public async Task<IActionResult> GetClubSeason(int year, string clubId)
         {
-            var club = await _storage.Retrieve<ClubSeason>(year.ToString(), name);
+            var club = await _storage.Retrieve<ClubSeason>(clubId, year.ToString());
 
             if (club == null)
             {
@@ -34,6 +34,14 @@ namespace DdhpCore.FrontEnd.Controllers.Api
             }
 
             return new ObjectResult(club);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetClubs()
+        {
+            var clubs = await _storage.GetAllRows<Club>();
+
+            return new ObjectResult(clubs);
         }
     }
 }

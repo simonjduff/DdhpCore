@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using DdhpCore.Storage;
-using Microsoft.DotNet.Cli.Utils;
-using Microsoft.WindowsAzure.Storage.Table;
-using Newtonsoft.Json;
 
 namespace DdhpCore.FrontEnd.Models.Api.Read
 {
-    [TableName("clubsRead")]
+    [TableName("SeasonStatsByClub")]
     public class ClubSeason : ComplexEntity
     {
         public ClubSeason()
@@ -16,29 +13,24 @@ namespace DdhpCore.FrontEnd.Models.Api.Read
             Contracts = Enumerable.Empty<Contract>();
         }
 
-        private Guid _id;
         public Guid Id
         {
-            get { return _id; }
+            get { return Guid.Parse(PartitionKey); }
             set
             {
-                _id = value;
-                RowKey = value.ToString();
+                PartitionKey = value.ToString();
             }
         }
 
-        public string CoachName { get; set; }
-        public string ClubName { get; set; }
-        public string Email { get; set; }
         public int Year
         {
             get
             {
-                return int.Parse(PartitionKey);
+                return int.Parse(RowKey);
             }
             set
             {
-                PartitionKey = value.ToString();
+                RowKey = value.ToString();
             }
         }
 

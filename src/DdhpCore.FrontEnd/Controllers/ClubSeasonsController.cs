@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Net;
 using System.Net.Http;
-using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using DdhpCore.FrontEnd.Models.Api.Read;
 using DdhpCore.FrontEnd.Models.Values;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace DdhpCore.FrontEnd.Models.Api.Read
 {
@@ -15,13 +14,13 @@ namespace DdhpCore.FrontEnd.Models.Api.Read
             FromRound = fromRound;
             ToRound = toRound;
             DraftPick = draftPick;
-            Stats = Enumerable.Empty<Stat>();
+            //Stats = Enumerable.Empty<Stat>();
         }
         public Guid PlayerId { get; set; }
         public int FromRound { get; set; }
         public int ToRound { get; set; }
         public int DraftPick { get; set; }
-        public Player Player { get; set; }
-        public IEnumerable<Stat> Stats { get; set; }
+        public string PlayerName { get; set; }
+        public IDictionary<int, IDictionary<char, int>> Stats { get; set; }
     }
 }
