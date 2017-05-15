@@ -12,6 +12,9 @@ namespace DdhpCore.FrontEnd.Configuration
             cfg.CreateMap<Club, ClubApi>()
                 .ForMember(dest => dest.ClubName, opt => opt.MapFrom(source => source.Details.ClubName))
                 .ForMember(dest => dest.CoachName, opt => opt.MapFrom(source => source.Details.CoachName));
+            cfg.CreateMap<ClubSeason, ClubSeasonApi>()
+                .ForMember(dest => dest.ClubId, opt => opt.MapFrom(source => source.Id));
+            cfg.CreateMap<Contract, ClubSeasonApi.Contract>();
         }
     }
 }

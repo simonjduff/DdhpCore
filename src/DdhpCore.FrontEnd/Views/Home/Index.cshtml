@@ -1,8 +1,16 @@
-﻿@model object
+﻿@using DdhpCore.FrontEnd.Models.Api.Read
+@model IEnumerable<ClubApi>
 
 @{
-    ViewBag.Title = "DDHP";
+    ViewBag.Title = "Home";
     Layout = "_Layout";
 }
 
-<h2>DDHP</h2>
+<h2>@ViewBag.Title</h2>
+<div>
+    <h3>Clubs</h3>
+    @foreach (var club in Model)
+    {
+        <div>@Html.ActionLink(club.ClubName, "Index", "ClubSeasons", new {year = 2016, name = club.ClubName})</div>
+    }
+</div>

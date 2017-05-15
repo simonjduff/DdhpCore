@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DdhpCore.FrontEnd.Models.Api.Read
+namespace DdhpCore.FrontEnd.Models.Storage
 {
     public class Contract
     {
@@ -14,7 +14,6 @@ namespace DdhpCore.FrontEnd.Models.Api.Read
             FromRound = fromRound;
             ToRound = toRound;
             DraftPick = draftPick;
-            //Stats = Enumerable.Empty<Stat>();
         }
         public Guid PlayerId { get; set; }
         public int FromRound { get; set; }

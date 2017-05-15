@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using DdhpCore.FrontEnd.Models.Api.Read;
@@ -6,6 +7,7 @@ using DdhpCore.FrontEnd.Models.Storage;
 using DdhpCore.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace DdhpCore.FrontEnd.Controllers.Api
 {
@@ -35,7 +37,7 @@ namespace DdhpCore.FrontEnd.Controllers.Api
                 return NotFound();
             }
 
-            return new ObjectResult(club);
+            return new ObjectResult(_mapper.Map<ClubSeason, ClubSeasonApi>(club));
         }
 
         [HttpGet]
@@ -43,7 +45,26 @@ namespace DdhpCore.FrontEnd.Controllers.Api
         {
             var clubs = await _storage.GetAllRows<Club>();
 
+            if (!clubs.Any())
+            {
+                return NotFound();
+            }
+
             return new ObjectResult(_mapper.Map<IEnumerable<Club>, IEnumerable<ClubApi>>(clubs));
+        }
+
+        [HttpGet]
+        [Route("{name}")]
+        public async Task<IActionResult> GetClubByName(string name)
+        {
+            var club = await _storage.GetAllByPartition<Club>(name);
+
+            if (!club.Any())
+            {
+                return NotFound();
+            }
+
+            return new ObjectResult(_mapper.Map<Club, ClubApi>(club.Single()));
         }
     }
 }
